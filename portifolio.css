@@ -1,0 +1,39 @@
+.conteiner{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.conteiner div{
+    border: #000 solid 1px;
+    width: 100%;
+    
+}
+
+.header{
+    grid-column: 1 / -1; 
+    height: 75px;
+}
+
+.sobre{
+    height: 275px;
+}
+
+.projetos{
+    height: 275px;
+}
+
+.fotos{
+    grid-column: 1 / -1;
+    height: 275px;
+}
+
+.cursos{
+    grid-column: 1 / -1;
+    height: 275px;
+}
+
+.contato{
+    grid-column: 1 / -1;
+    height: 75px;    
+}
