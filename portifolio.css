@@ -13,6 +13,8 @@
 .header{
     grid-column: 1 / -1; 
     height: 75px;
+    text-align:center;
+    font-size: 79px;
 }
 
 .sobre{
@@ -35,5 +37,20 @@
 
 .contato{
     grid-column: 1 / -1;
-    height: 75px;    
+    height: 100px;    
+}
+
+.qr{
+    width: 70px;
+    height: 70px;
+}
+
+.qr2{
+        width: 70px;
+        height: 70px;
+}
+
+.qr3{
+        width: 70px;
+        height: 70px;
 }
