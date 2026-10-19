@@ -1,47 +1,189 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Portfólio - Matheus de Oliveira Prado</title>
     <link rel="stylesheet" href="portifolio.css">
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+
+        .conteiner {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .header, .sobre, .projetos, .fotos, .cursos, .contato {
+            margin-bottom: 25px;
+        }
+
+        h1, h2 {
+            margin-bottom: 10px;
+        }
+
+        ul {
+            list-style-position: inside;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        /* --- CONFIGURAÇÃO DA DIV FOTOS ANTI-VAZAMENTO --- */
+        .fotos {
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden; /* BARREIRA: impede qualquer coisa interna de vazar para fora desta div */
+        }
+
+        .carrossel {
+            width: 100%;
+            max-width: 100%;
+            height: 450px; /* Altura fixa controlada */
+            position: relative;
+            overflow: hidden; /* Corta conteúdos extras dos slides */
+            border-radius: 8px;
+            margin-top: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            background-color: #000; /* Fundo preto para preencher os lados das fotos verticais */
+        }
+        
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            animation: troca 55s infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Mantém a foto inteira visível dentro do espaço */
+        }
+        
+        /* Controle de tempo dos slides */
+        .slide:nth-child(1) { animation-delay: 0s; }
+        .slide:nth-child(2) { animation-delay: 5s; }
+        .slide:nth-child(3) { animation-delay: 10s; }
+        .slide:nth-child(4) { animation-delay: 15s; }
+        .slide:nth-child(5) { animation-delay: 20s; }
+        .slide:nth-child(6) { animation-delay: 25s; }
+        .slide:nth-child(7) { animation-delay: 30s; }
+        .slide:nth-child(8) { animation-delay: 35s; }
+        .slide:nth-child(9) { animation-delay: 40s; }
+        .slide:nth-child(10) { animation-delay: 45s; }
+        .slide:nth-child(11) { animation-delay: 50s; }
+
+        @keyframes troca {
+            0% { opacity: 0; }
+            2% { opacity: 1; }   
+            9% { opacity: 1; }   
+            11% { opacity: 0; }  
+            100% { opacity: 0; }
+        }
+        /* ------------------------------------------------ */
+
+        /* .qr, .qr2, .qr3 {
+            width: 30px;
+            height: 30px;
+            vertical-align: middle;
+            margin-right: 8px;
+        } */
+    </style>
 </head>
 <body>
+
     <div class="conteiner">
-        <div class="header">Matheus de Oliveira Prado</div>
-        <div class="sobre">Sobre mim:
+        <div class="header">
+            <h1>Matheus de Oliveira Prado</h1>
+        </div>
+
+        <div class="sobre">
+            <h2>Sobre mim:</h2>
             <ul>
                 <li>Escritor</li>
                 <li>Poeta</li>
-                <li>Fotografo armador</li>
-                <li>Visionario</li>
+                <li>Fotógrafo amador</li>
+                <li>Visionário</li>
             </ul>
         </div>
-        <div class="projetos">Meus projetos:
+
+        <div class="projetos">
+            <h2>Meus projetos:</h2>
             <ul>
-                <li><a href="">Trabalhos manuais</a></li>
-                <li><a href="">Livros</a></li>
-                <li><a href=""></a></li>
-                <li><a href=""></a></li>
-                <li><a href=""></a></li>
-                <li><a href=""></a></li>
+                <li><a href="#">Trabalhos manuais</a></li>
+                <li><a href="#">Livros</a></li>
             </ul>
         </div>
-        <div class="fotos">Fotos</div>
-        <div class="cursos">Meus cursos:
-             <li><p>Informsrtica essencial</p></li>
-                <li><p>InStalação de som e acessorio autotivo</p></li>
-                <li><p>PET Trampolim/</p></li>
-                <li><p>Libras 1</p></li>
-                <li><p>técnico em Administração</p></li>
-                <li><p>Assistente de Desenvolvimento de Aplicativo Computacionais</p></li>
+
+        <!-- Div Fotos Totalmente Protegida -->
+        <div class="fotos">
+            <h2>Fotos</h2>
+            <div class="carrossel espiral">
+                <div class="slide"><img src="DSCN0360.JPG" alt="Imagem 1"></div>
+                <div class="slide"><img src="IMG_20240623_125159.jpg" alt="Imagem 2"></div>
+                <div class="slide"><img src="IMG_20240924_110315.jpg" alt="Imagem 3"></div>
+                <div class="slide"><img src="IMG_20250726_112101733_SR.jpg" alt="Imagem 4"></div>
+                <div class="slide"><img src="IMG_20250726_135508634_HDR.jpg" alt="Imagem 5"></div>
+                <div class="slide"><img src="IMG_20250730_075750817_HDR.jpg" alt="Imagem 6"></div>
+                <div class="slide"><img src="IMG_20250804_163452559_MFNR.jpg" alt="Imagem 7"></div>
+            </div>
         </div>
-               
-        <div class="contato">Contatos:
-             <li><a href="https://www.facebook.com/share/18LmrxzeWN/"> <img src="img/qrcode.png" class="qr">facebook</a></li>
-                <li><a href="https://instagram.com/matheus_de_oliveira_prado?utm_source=qr&psln=YjdoM2FiMThjYWZz" ><img src="img/qrcode (1).png" class="qr2"></a>Instagram</a></li>
-                <li><a href="https://wa.me/qr/D6PLWUPPYKBSC1"><img src="img/qrcode (2).png" class="qr3" alt="">whatsApp</a></li>
+
+        <div class="cursos">
+            <h2>Meus cursos:</h2>
+            <ul>
+                <li>Informática essencial</li>
+                <li>Instalação de som e acessório automotivo</li>
+                <li>PET Trampolim</li>
+                <li>Libras 1</li>
+                <li>Técnico em Administração</li>
+                <li>Assistente de Desenvolvimento de Aplicativos Computacionais</li>
+            </ul>
+        </div>
+
+        <div class="contato">
+            <h2>Contatos:</h2>
+            <ul>
+                <li>
+                    <a href="https://facebook.com">
+                        <img src="img/qrcode.png" class="qr" alt="QR Code Facebook"> Facebook
+                    </a>
+                </li>
+                <li>
+                    <a href="https://instagram.com">
+                        <img src="img/qrcode (1).png" class="qr2" alt="QR Code Instagram"> Instagram
+                    </a>
+                </li>
+                <li>
+                    <a href="https://wa.me">
+                        <img src="img/qrcode (2).png" class="qr3" alt="QR Code WhatsApp"> WhatsApp
+                    </a>
+                </li>
+            </ul>
         </div>
     </div>
+
 </body>
 </html>

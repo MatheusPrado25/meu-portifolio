@@ -1,4 +1,4 @@
-.conteiner{
+                                                     .conteiner{
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 16px;
@@ -7,50 +7,189 @@
 .conteiner div{
     border: #000 solid 1px;
     width: 100%;
-    
 }
 
 .header{
     grid-column: 1 / -1; 
-    height: 75px;
+    height: 35px;
     text-align:center;
-    font-size: 79px;
+    font-size: 15px;
 }
 
 .sobre{
-    height: 275px;
+    height: 140px;
 }
 
 .projetos{
-    height: 275px;
+    height: 140px;
 }
 
 .fotos{
     grid-column: 1 / -1;
-    height: 275px;
+    height: 500px;
 }
 
 .cursos{
     grid-column: 1 / -1;
-    height: 275px;
+    height: 200px;
 }
 
 .contato{
     grid-column: 1 / -1;
-    height: 100px;    
+    height: 350px;    
 }
 
 .qr{
-    width: 70px;
-    height: 70px;
+    width: 85px;
+    height: 85px;
 }
 
 .qr2{
-        width: 70px;
-        height: 70px;
+    width: 85px;
+    height: 85px;
 }
 
 .qr3{
-        width: 70px;
-        height: 70px;
+    width: 85px;
+    height: 85px;
+}
+
+
+/* ==========================================================================
+   2. REGRAS BASE DO CARROSSEL DE IMAGENS (DENTRO DA DIV FOTOS)
+   ========================================================================== */
+
+.carrossel {
+    width: 100%;
+    height: 440px; /* Ajustado para caber perfeitamente sob o título de 35px da div .fotos */
+    position: relative;
+    overflow: hidden;
+    margin-top: 5px;
+}
+
+.slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    animation: troca 55s infinite; /* Loop total para as 11 imagens */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Mantém a imagem inteira visível sem distorcer ou vazar */
+}
+
+/* Distribuição de tempo (atrasos de 5 em 5 segundos) para os 11 slides */
+.slide:nth-child(1) { animation-delay: 0s; }
+.slide:nth-child(2) { animation-delay: 5s; }
+.slide:nth-child(3) { animation-delay: 10s; }
+.slide:nth-child(4) { animation-delay: 15s; }
+.slide:nth-child(5) { animation-delay: 20s; }
+.slide:nth-child(6) { animation-delay: 25s; }
+.slide:nth-child(7) { animation-delay: 30s; }
+.slide:nth-child(8) { animation-delay: 35s; }
+.slide:nth-child(9) { animation-delay: 40s; }
+.slide:nth-child(10) { animation-delay: 45s; }
+.slide:nth-child(11) { animation-delay: 50s; }
+
+@keyframes troca {
+    0% { opacity: 0; }
+    2% { opacity: 1; }   
+    9% { opacity: 1; }   
+    11% { opacity: 0; }  
+    100% { opacity: 0; }
+}
+
+
+/* ==========================================================================
+   3. OS 7 EFEITOS DE FUNDO SELECIONÁVEIS
+   ========================================================================== */
+
+/* 1. Xadrez */
+.carrossel.xadrez {
+    background-color: #ffffff;
+    background-image: 
+        linear-gradient(45deg, #e0e0e0 25%, transparent 25%), 
+        linear-gradient(-45deg, #e0e0e0 25%, transparent 25%), 
+        linear-gradient(45deg, transparent 75%, #e0e0e0 75%), 
+        linear-gradient(-45deg, transparent 75%, #e0e0e0 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+}
+
+/* 2. Espiral */
+.carrossel.espiral {
+    background: repeating-conic-gradient(#333 0% 5%, #111 5% 10%);
+}
+.carrossel.espiral::after {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.8) 90%);
+}
+
+/* 3. Gota de Água */
+.carrossel.gota-agua {
+    background: linear-gradient(135deg, #74b9ff, #0984e3);
+    box-shadow: inset 10px 10px 20px rgba(0,0,0,0.2), inset -10px -10px 20px rgba(255,255,255,0.3);
+    animation: moverGota 8s ease-in-out infinite alternate;
+}
+@keyframes moverGota {
+    0% { border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; }
+    50% { border-radius: 60% 40% 30% 70% / 50% 60% 40% 60%; }
+    100% { border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%; }
+}
+
+/* 4. Furacão */
+.carrossel.furacao {
+    background: #000;
+}
+.carrossel.furacao::before {
+    content: ''; position: absolute; width: 200%; height: 200%; top: -50%; left: -50%;
+    background: conic-gradient(transparent, rgba(255,255,255,0.4), transparent 60%);
+    animation: girarFuracao 4s linear infinite;
+}
+@keyframes girarFuracao {
+    from { transform: rotate(0deg); } to { transform: rotate(360deg); }
+}
+
+/* 5. Neve */
+.carrossel.neve {
+    background-color: #1a252f;
+    background-image: 
+        radial-gradient(circle at 20% 30%, #fff 2px, transparent 0),
+        radial-gradient(circle at 75% 15%, #fff 3px, transparent 0),
+        radial-gradient(circle at 50% 60%, #fff 1.5px, transparent 0),
+        radial-gradient(circle at 90% 80%, #fff 2.5px, transparent 0);
+    background-size: 200px 200px;
+    animation: cairNeve 10s linear infinite;
+}
+@keyframes cairNeve {
+    from { background-position: 0px 0px; } to { background-position: 50px 200px; }
+}
+
+/* 6. Vulcão */
+.carrossel.vulcao {
+    background: radial-gradient(circle at bottom, #ff3838, #3a0000 70%);
+    animation: pulsarLava 4s ease-in-out infinite alternate;
+}
+@keyframes pulsarLava {
+    0% { background-size: 100% 100%; filter: brightness(1); }
+    100% { background-size: 120% 120%; filter: brightness(1.4) contrast(1.2); }
+}
+
+/* 7. Pisca */
+.carrossel.pisca {
+    background-color: #00ffcc;
+    box-shadow: 0 0 20px #00ffcc;
+    animation: piscarLuz 1.5s ease-in-out infinite;
+}
+@keyframes piscarLuz {
+    0%, 100% { opacity: 1; filter: drop-shadow(0 0 15px #00ffcc); }
+    50% { opacity: 0.3; filter: drop-shadow(0 0 2px transparent); }
 }
