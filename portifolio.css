@@ -1,7 +1,20 @@
-                                                     .conteiner{
+body{
+    background: url('img/melhores-cachoeiras-do-sul-de-minas-cachoeira-dos-garcias.jpg') center/cover no-repeat;
+    border: #06ff74 solid 15px;
+     animation: borda 2s ease infinite;
+}
+
+@keyframes borda{
+    0%{border: #06ff74 solid 15px;}
+    50%{border: #0ee2e2 solid 20px;}
+    100%{border: #06ff74 solid 15px;}
+}
+
+.conteiner{
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 16px;
+    background-color: rgba(255,255,255,0.75);
 }
 
 .conteiner div{
@@ -17,11 +30,13 @@
 }
 
 .sobre{
-    height: 140px;
+    height: 300px;
+    padding: 30px;
 }
 
 .projetos{
-    height: 140px;
+    height:300px;
+    padding: 30px;
 }
 
 .fotos{
