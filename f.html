@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Level Devil - AI Evolution</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0b0b0e;
+            color: #ffffff;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        h1 {
+            color: #ff3e3e;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px rgba(255, 62, 62, 0.5);
+        }
+        #canvas-wrapper {
+            position: relative;
+            box-shadow: 0 0 30px rgba(0,0,0,0.7);
+        }
+        canvas {
+            background-color: #141419;
+            border: 4px solid #2a2a35;
+            display: block;
+        }
+        #dashboard {
+            width: 800px;
+            background: #1c1c24;
+            border: 4px solid #2a2a35;
+            border-top: none;
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .intel { color: #00ffcc; }
+        .danger { color: #ff3e3e; }
+        #debug-log {
+            width: 800px;
+            margin-top: 10px;
+            background: #000;
+            color: #ff0000;
+            padding: 5px;
+            font-size: 12px;
+            display: none;
+            border: 1px solid #ff0000;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>LEVEL DEVIL: IA TROLL</h1>
+    
+    <div id="canvas-wrapper">
+        <canvas id="game" width="800" height="400"></canvas>
+    </div>
+
+    <div id="dashboard">
+        <div>MORTES: <span id="death-ui" class="danger">0</span></div>
+        <div>SISTEMA IA: <span id="ai-ui" class="intel">ANALISANDO JOGADOR</span></div>
+        <div>FASE: <span id="level-ui" style="color: #ffcc00;">1</span></div>
+    </div>
+
+    <div id="debug-log" id="debug"></div>
+
+
+<script>
+        // Sistema de log para capturar erros no VS Code/Navegador
+        function logError(msg) {
+            const box = document.getElementById('debug-log');
+            box.style.display = 'block';
+            box.innerText = "Erro Detectado: " + msg;
+        }
+
+        try {
+            const canvas = document.getElementById('game');
+            const ctx = canvas.getContext('2d');
+
+            // Globais do Jogo
+            let level = 1;
+            let deaths = 0;
+            
+            // Memória de Padrões da IA
+            let aiMemory = {
+                deathLocations: [],
+                jumpCoordinates: [],
+                rushFactor: 0
+            };
+
+            // Propriedades do Personagem
+            const player = {
+                x: 60,
+                y: 200,
+                w: 24,
+                h: 32,
+                vx: 0,
+                vy: 0,
+                speed: 4.5,
+                jump: 11,
+                onGround: false
+            };
+
+            const physics = { gravity: 0.5, friction: 0.85 };
+            const keys = { Left: false, Right: false, Up: false };
+
+            // Vetores de ambiente
+            let blocks = [];
+            let hazards = [];
+            let goal = { x: 720, y: 290, w: 40, h: 60, originalY: 290 };
+
+            // Construtor do cenário seguro contra falhas
+            function buildMap() {
+                blocks = [];
+                hazards = [];
+
+                // Reset do jogador
+                player.x = 60;
+                player.y = 200;
+                player.vx = 0;
+                player.vy = 0;
+                goal.y = goal.originalY;
+
+                document.getElementById('level-ui').innerText = level;
+                document.getElementById('death-ui').innerText = deaths;
+
+                // 1. GERAÇÃO DE CHÃO SEGURO (Plataformas principais estáveis)
+                blocks.push({ x: 0, y: 350, w: 220, h: 50, type: 'normal', originalY: 350 });
+                blocks.push({ x: 320, y: 350, w: 160, h: 50, type: 'troll_fall', originalY: 350 }); 
+                blocks.push({ x: 580, y: 350, w: 220, h: 50, type: 'normal', originalY: 350 });
+
+                // 2. GERAÇÃO DE ARMADILHAS INICIAIS
+                hazards.push({ x: 180, y: 330, w: 30, h: 20, type: 'static', originalY: 330 });
+                hazards.push({ x: 380, y: 330, w: 30, h: 20, type: 'surprise_jump', originalY: 330 });
+                hazards.push({ x: 620, y: -40, w: 30, h: 40, type: 'ceiling_drop', originalY: -40 }); 
+
+                // 3. ADAPTAÇÃO DA IA TROLL (Lê a memória do jogador)
+                const aiStatus = document.getElementById('ai-ui');
+                
+                if (deaths > 0) {
+                    aiStatus.innerText = "PREVENDO SEUS MOVIMENTOS";
+                    aiStatus.style.color = "#ff3e3e";
+
+                    // Se o jogador pula muito no mesmo lugar, coloca um espinho escondido lá
+                    if (aiMemory.jumpCoordinates.length > 0) {
+                        let dynamicX = aiMemory.jumpCoordinates[aiMemory.jumpCoordinates.length - 1];
+                        // Evita spawnar colado na área de segurança inicial
+                        if (dynamicX > 120 && dynamicX < 700) {
+                            hazards.push({ x: dynamicX + 30, y: 350, w: 30, h: 20, type: 'popup', originalY: 350 });
+                        }
+                    }
+
+                    // Anti-rush: se a velocidade média gravada for alta
+                    if (aiMemory.rushFactor > 3.8) {
+                        blocks[1].w = 60; // Encolhe consideravelmente o bloco do meio
+                    }
+                } else {
+                    aiStatus.innerText = "COLETANDO PADRÕES";
+                    aiStatus.style.color = "#00ffcc";
+                }
+            }
+
+            // Detector de colisões AABB
+            function checkCollision(r1, r2) {
+                return r1.x < r2.x + r2.w &&
+                       r1.x + r1.w > r2.x &&
+                       r1.y < r2.y + r2.h &&
+                       r1.y + r1.h > r2.y;
+            }
+
+            // Gerenciador de Derrotas
+            function processDeath(reason) {
+                deaths++;
+                aiMemory.deathLocations.push({ x: player.x, y: player.y });
+                buildMap();
+            }
+
+            // Captura de Teclado
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'a' || e.key === 'ArrowLeft')  keys.Left = true;
+                if (e.key === 'd' || e.key === 'ArrowRight') keys.Right = true;
+                if (e.key === 'w' || e.key === ' ' || e.key === 'ArrowUp') {
+                    keys.Up = true;
+                    if (player.onGround) aiMemory.jumpCoordinates.push(player.x);
+                }
+                if (e.key === 'r' || e.key === 'R') processDeath('manual_reset');
+            });
+
+            window.addEventListener('keyup', (e) => {
+                if (e.key === 'a' || e.key === 'ArrowLeft')  keys.Left = false;
+                if (e.key === 'd' || e.key === 'ArrowRight') keys.Right = false;
+                if (e.key === 'w' || e.key === ' ' || e.key === 'ArrowUp')    keys.Up = false;
+            });
+
+            // Atualização da Lógica do Jogo
+            function update() {
+                // Movimento Horizontal
+                if (keys.Left) {
+                    player.vx = -player.speed;
+                } else if (keys.Right) {
+                    player.vx = player.speed;
+                } else {
+                    player.vx *= physics.friction;
+                    if (Math.abs(player.vx) < 0.1) player.vx = 0;
+                }
+
+                // Salva dados de corrida para calcular o Anti-rush da IA
+                if (Math.abs(player.vx) > 1) {
+                    aiMemory.rushFactor = (aiMemory.rushFactor + Math.abs(player.vx)) / 2;
+                }
+
+                // Gravidade
+                player.vy += physics.gravity;
+
+                // Pulo
+                if (keys.Up && player.onGround) {
+                    player.vy = -player.jump;
+                    player.onGround = false;
+                }
+
+                // EIXO X: Aplicação de movimento e colisão horizontal dedicada
+                player.x += player.vx;
+                for (let b of blocks) {
+                    if (checkCollision(player, b)) {
+                        if (player.vx > 0) player.x = b.x - player.w;
+                        if (player.vx < 0) player.x = b.x + b.w;
+                    }
+                }
+
+                // EIXO Y: Aplicação de movimento e colisão vertical dedicada
+                player.y += player.vy;
+                player.onGround = false;
+
+                for (let b of blocks) {
+                    if (checkCollision(player, b)) {
+                        // Se colidir caindo (Chão)
+                        if (player.vy > 0) {
+                            player.y = b.y - player.h;
+                            player.vy = 0;
+                            player.onGround = true;
+
+                            // Troll do chão que cai
+                            if (b.type === 'troll_fall' && player.x > 330) {
+                                b.y += 8; 
+                            }
+                        }
+                        // Se colidir subindo (Teto de blocos)
+                        else if (player.vy < 0) {
+                            player.y = b.y + b.h;
+
+player.vy = 0;
+}
+}
+}
+// Comportamento Ativo das Armadilhas da IA
+for (let h of hazards) {
+// Armadilha 1: Salta em direção ao jogador perto do abismo
+if (h.type === 'surprise_jump' && player.x > 260 && player.x < 480) {
+h.y -= 4;
+}
+// Armadilha 2: Teto cai repentinamente perto do final
+if (h.type === 'ceiling_drop' && player.x > 530) {
+h.y += 14;
+}
+// Armadilha 3: Criada dinamicamente pela IA na queda do pulo
+if (h.type === 'popup' && Math.abs(player.x - h.x) < 75) {
+h.y = 330;
+}
+// Verificação de Morte por Espinhos
+if (checkCollision(player, h)) {
+processDeath(h.type);
+return;
+}
+}
+// Troll Clássico da Porta: Ela foge para cima quando você chega muito perto
+if (player.x > 620 && player.y < 350) {
+goal.y = 190;
+}
+// Morte por queda no abismo
+if (player.y > canvas.height) {
+processDeath('pitfall');
+return;
+}
+// Condição de Vitória (Passar de Fase)
+if (checkCollision(player, goal)) {
+level++;
+alert(Nível ${level - 1} completado! A Inteligência Artificial guardou seus dados mecânicos.);
+buildMap();
+}
+}
+// Renderização gráfica
+function draw() {
+// Limpa a tela antes do novo frame
+ctx.clearRect(0, 0, canvas.width, canvas.height);
+// Desenha Plataformas
+ctx.fillStyle = "#3a3a42";
+for (let b of blocks) {
+ctx.fillRect(b.x, b.y, b.w, b.h);
+}
+// Desenha Espinhos / Obstáculos perigosos
+ctx.fillStyle = "#ff3e3e";
+for (let h of hazards) {
+ctx.beginPath();
+ctx.moveTo(h.x, h.y + h.h);
+ctx.lineTo(h.x + h.w / 2, h.y);
+ctx.lineTo(h.x + h.w, h.y + h.h);
+ctx.closePath();
+ctx.fill();
+}
+// Desenha o Alvo / Porta de Saída
+ctx.fillStyle = "#ffcd1e";
+ctx.fillRect(goal.x, goal.y, goal.w, goal.h);
+// Detalhe da maçaneta
+ctx.fillStyle = "#121214";
+ctx.fillRect(goal.x + 8, goal.y + 26, 6, 8);
+// Desenha o Jogador (Level Devil Style)
+ctx.fillStyle = "#00ff66";
+ctx.fillRect(player.x, player.y, player.w, player.h);
+}
+// Loop principal do mecanismo gráfico/física
+function gameLoop() {
+update();
+draw();
+requestAnimationFrame(gameLoop);
+}
+// Inicialização primária
+buildMap();
+gameLoop();
+} catch (err) {
+logError(err.message);
+}
+
+
