@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrossel de Fotos e Vídeos - Matheus de Oliveira Prado</title>
+    <style>
+        /* ===================================================
+           RESET & VARIÁVEIS GERAIS
+        =================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #06ff74;
+            --secondary: #0ee2e2;
+            --bg-dark: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.85);
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-glow: rgba(6, 255, 116, 0.3);
+            --transition-speed: 0.35s;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(circle at top, #1e293b 0%, #0f172a 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        /* Animação sutil de fundo */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at 80% 20%, rgba(14, 226, 226, 0.08) 0%, transparent 40%),
+                        radial-gradient(circle at 20% 80%, rgba(6, 255, 116, 0.08) 0%, transparent 40%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ===================================================
+           CABEÇALHO & BARRA DE NAVEGAÇÃO
+        =================================================== */
+        header {
+            width: 100%;
+            max-width: 1100px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 15px 25px;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+            z-index: 10;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--secondary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            background: rgba(14, 226, 226, 0.1);
+            border: 1px solid rgba(14, 226, 226, 0.25);
+            transition: all var(--transition-speed);
+        }
+
+        .back-btn:hover {
+            background: rgba(14, 226, 226, 0.25);
+            transform: translateX(-4px);
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(14, 226, 226, 0.4);
+        }
+
+        .header-title {
+            text-align: center;
+        }
+
+        .header-title h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.5px;
+        }
+
+        .header-title p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .badge-count {
+            background: rgba(6, 255, 116, 0.15);
+            color: var(--primary);
+            border: 1px solid rgba(6, 255, 116, 0.3);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        /* ===================================================
+           BARRA DE FILTROS & AÇÕES
+        =================================================== */
+        .controls-toolbar {
+            width: 100%;
+            max-width: 1100px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+            z-index: 10;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 8px;
+            background: rgba(15, 23, 42, 0.7);
+            padding: 4px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .filter-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn:hover {
+            color: #ffffff;
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, rgba(14, 226, 226, 0.25), rgba(6, 255, 116, 0.25));
+            color: #ffffff;
+            border: 1px solid var(--secondary);
+            box-shadow: 0 0 10px rgba(6, 255, 116, 0.2);
+        }
+
+        .actions-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-light);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all var(--transition-speed);
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .action-btn.active-autoplay {
+            background: rgba(6, 255, 116, 0.15);
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: 0 0 12px rgba(6, 255, 116, 0.3);
+        }
+
+        /* ===================================================
+           CARROSSEL PRINCIPAL
+        =================================================== */
+        .carousel-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 1100px;
+            height: 600px;
+            background: #000000;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(6, 255, 116, 0.15);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .carousel-track {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .carousel-slide {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s ease;
+            transform: scale(0.97);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+        }
+
+        .carousel-slide.active {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1);
+            z-index: 2;
+        }
+
+        .carousel-slide img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            user-select: none;
+            display: block;
+        }
+
+        .carousel-slide video {
+            max-width: 100%;
+            max-height: 100%;
+            outline: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Legenda / Detalhes do item ativo */
+        .slide-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 24px 30px 20px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.5) 60%, transparent 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .caption-text {
+            pointer-events: auto;
+        }
+
+        .caption-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .caption-type {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 6px;
+            letter-spacing: 1px;
+        }
+
+        .type-foto {
+            background: rgba(14, 226, 226, 0.2);
+            color: var(--secondary);
+            border: 1px solid var(--secondary);
+        }
+
+        .type-video {
+            background: rgba(255, 75, 75, 0.25);
+            color: #ff6b6b;
+            border: 1px solid #ff6b6b;
+        }
+
+        .caption-filename {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            font-family: monospace;
+        }
+
+        /* Botões de Navegação Anterior / Próximo */
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            font-size: 26px;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-speed);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .nav-btn:hover {
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            color: #0f172a;
+            border-color: transparent;
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 0 0 20px rgba(6, 255, 116, 0.6);
+        }
+
+        .nav-btn.prev {
+            left: 20px;
+        }
+
+        .nav-btn.next {
+            right: 20px;
+        }
+
+        /* Indicador de progresso do autoplay */
+        .autoplay-progress-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--secondary), var(--primary));
+            width: 0%;
+            z-index: 20;
+            transition: width 0.1s linear;
+        }
+
+        /* ===================================================
+           MINIATURAS (THUMBNAILS)
+        =================================================== */
+        .thumbnails-container {
+            width: 100%;
+            max-width: 1100px;
+            margin-top: 18px;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            padding: 14px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            z-index: 10;
+        }
+
+        .thumbnails-track {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding: 4px;
+        }
+
+        .thumbnails-track::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .thumbnails-track::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+
+        .thumbnails-track::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        .thumbnails-track::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary);
+        }
+
+        .thumb-item {
+            flex: 0 0 95px;
+            height: 70px;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            border: 2px solid transparent;
+            opacity: 0.55;
+            transition: all var(--transition-speed);
+            background: #000;
+        }
+
+        .thumb-item:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .thumb-item.active {
+            opacity: 1;
+            border-color: var(--primary);
+            box-shadow: 0 0 12px rgba(6, 255, 116, 0.6);
+            transform: translateY(-3px) scale(1.05);
+        }
+
+        .thumb-item img, 
+        .thumb-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .thumb-video-badge {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: #ffffff;
+            border-radius: 50%;
+            width: 26px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* ===================================================
+           LEGENDA DE ATALHOS / RODAPÉ
+        =================================================== */
+        footer {
+            margin-top: 25px;
+            margin-bottom: 10px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-align: center;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .shortcut-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.1);
+            color: #e2e8f0;
+            padding: 2px 7px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        /* ===================================================
+           RESPONSIVIDADE (MOBILE & TABLETS)
+        =================================================== */
+        @media (max-width: 768px) {
+            body {
+                padding: 12px;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 12px;
+                text-align: center;
+                padding: 15px;
+            }
+
+            .carousel-wrapper {
+                height: 420px;
+            }
+
+            .nav-btn {
+                width: 44px;
+                height: 44px;
+                font-size: 20px;
+            }
+
+            .nav-btn.prev {
+                left: 10px;
+            }
+
+            .nav-btn.next {
+                right: 10px;
+            }
+
+            .thumb-item {
+                flex: 0 0 75px;
+                height: 55px;
+            }
+
+            .controls-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-group {
+                justify-content: center;
+            }
+
+            .actions-group {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+     <h1><a href="aportifolio.html" style="text-decoration: none;">⬅️</a></h1> 
+
+    <!-- CABEÇALHO -->
+    <header>
+        <a href="aportifolio.html" class="back-btn" title="Voltar para a página principal">
+            ← Voltar ao Portfólio
+        </a>
+        <div class="header-title">
+            <h1>Galeria Multimídia (img2)</h1>
+            <p>Carrossel interativo com fotos e vídeos do portfólio</p>
+        </div>
+        <div class="badge-count" id="itemCounter">
+            Carregando...
+        </div>
+    </header>
+
+    <!-- BARRA DE CONTROLE: FILTROS & AÇÕES -->
+    <div class="controls-toolbar">
+        <div class="filter-group">
+            <button class="filter-btn active" data-filter="all" id="filterAll">Todos (15)</button>
+            <button class="filter-btn" data-filter="image" id="filterImages">Fotos (13)</button>
+            <button class="filter-btn" data-filter="video" id="filterVideos">Vídeos (2)</button>
+        </div>
+
+        <div class="actions-group">
+            <button class="action-btn" id="autoplayBtn" title="Iniciar/Pausar transição automática">
+                <span id="autoplayIcon">▶</span>
+                <span id="autoplayText">Auto-play</span>
+            </button>
+            <button class="action-btn" id="fullscreenBtn" title="Alternar modo tela cheia">
+                <span>⛶</span> Tela Cheia
+            </button>
+        </div>
+    </div>
+
+    <!-- CARROSSEL PRINCIPAL -->
+    <main class="carousel-wrapper" id="carouselWrapper">
+        <!-- Barra de Progresso Autoplay -->
+        <div class="autoplay-progress-bar" id="progressBar"></div>
+
+        <!-- Botões de navegação -->
+        <button class="nav-btn prev" id="prevBtn" aria-label="Item anterior">❮</button>
+        <button class="nav-btn next" id="nextBtn" aria-label="Próximo item">❯</button>
+
+        <!-- Faixa de slides (renderizada via JavaScript com todos os 15 arquivos) -->
+        <div class="carousel-track" id="carouselTrack"></div>
+
+        <!-- Legenda dinâmica do item ativo -->
+        <div class="slide-caption">
+            <div class="caption-text">
+                <div class="caption-title">
+                    <span id="currentTypeBadge" class="caption-type type-foto">Foto</span>
+                    <span id="currentTitle">Carregando título...</span>
+                </div>
+                <div class="caption-filename" id="currentFilename">arquivo.jpg</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- FAIXA DE MINIATURAS (THUMBNAILS) -->
+    <section class="thumbnails-container">
+        <div class="thumbnails-track" id="thumbnailsTrack"></div>
+    </section>
+
+    <!-- RODAPÉ & ATALHOS -->
+    <footer>
+        <div>
+            Atalhos: 
+            <span class="shortcut-badge">◀</span> 
+            <span class="shortcut-badge">▶</span> Navegar | 
+            <span class="shortcut-badge">Espaço</span> Auto-play | 
+            <span class="shortcut-badge">F</span> Tela Cheia
+        </div>
+        <div>
+            &copy; 2026 Matheus de Oliveira Prado — Todos os direitos reservados.
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT DO CARROSSEL -->
+    <script>
+        // LISTA DE ARQUIVOS DA PASTA img2 (13 Fotos e 2 Vídeos)
+        const mediaItems = [
+            {
+                type: 'image',
+                src: 'img2/IMG-20240121-WA0008.jpg',
+                title: 'Registro Fotográfico 01',
+                filename: 'IMG-20240121-WA0008.jpg'
+            },
+            {
+                type: 'image',
+                src: 'img2/IMG-20240121-WA0016 (1).jpg',
+                title: 'Registro Fotográfico 02',
+                filename: 'IMG-20240121-WA0016 (1).jpg'
+            },
+            {
+                type: 'image',
+                src: 'img2/IMG-20240121-WA0024.jpg',
+                title: 'Registro Fotográfico 03',
+                filename: 'IMG-20240121-WA0024.jpg'
+            },
+            {
+                type: 'image',
+                src: 'img2/IMG-20240312-WA0026.jpg',
+                title: 'Registro Fotográfico 04',
+                filename: 'IMG-20240312-WA0026.jpg'
+            },
+            {
+                type: 'image',
+                src: 'img2/IMG-20251222-WA0002.jpeg',
+                title: 'Registro Fotográfico 05',
+                filename: 'IMG-20251222-WA0002.jpeg'
+            },
+            {
+                type: 'image',
+                src: 'img2/IMG-20260926-WA0010.jpeg',
+                title: 'Registro Fotográfico 06',
+                filename: 'IMG-20260926-WA0010.jpeg'
+            },
+            {
+                type: 'image',
+                src: 'img2/IMG-20261004-WA0004.jpeg',
+                title: 'Registro Fotográfico 07',
+                filename: 'IMG-20261004-WA0004.jpeg'
+            },
+            {
+                type: 'image',
+                src: 'img2/IMG-20261004-WA0004 (1).jpeg',
+                title: 'Registro Fotográfico 08',
+                filename: 'IMG-20261004-WA0004 (1).jpeg'
+            },
+            {
+                type: 'image',
+                src: 'img2/IMG_20260609_145129157_MFNR_HDR.jpg',
+                title: 'Foto HDR de Alta Resolução',
+                filename: 'IMG_20260609_145129157_MFNR_HDR.jpg'
+            },
+            {
+                type: 'image',
+                src: 'img2/Messenger_creation_611929206129643.jpeg',
+                title: 'Criação Artística 01',
+                filename: 'Messenger_creation_611929206129643.jpeg'
+            },
+            {
+                type: 'image',
+                src: 'img2/Messenger_creation_738905426860656.jpeg',
+                title: 'Aviãozinho de Madeira',
+                filename: 'Messenger_creation_738905426860656.jpeg'
+            },
+            {
+                type: 'image',
+                src: 'img2/Messenger_creation_759399888201744.jpeg',
+                title: 'Torre Eiffel de Papelão',
+                filename: 'Messenger_creation_759399888201744.jpeg'
+            },
+            {
+                type: 'image',
+                src: 'img2/tsuru.jpg',
+                title: 'Árvore de Tsuru',
+                filename: 'tsuru.jpg'
+            },
+            {
+                type: 'video',
+                src: 'img2/VID_20260713_115648.mp4',
+                title: 'Vídeo do Projeto 01',
+                filename: 'VID_20260713_115648.mp4'
+            },
+            {
+                type: 'video',
+                src: 'img2/Video_20260129220338892_by_VideoShow.mp4',
+                title: 'Apresentação em Vídeo 02',
+                filename: 'Video_20260129220338892_by_VideoShow.mp4'
+            }
+        ];
+
+        // VARIÁVEIS DE ESTADO
+        let currentFilter = 'all';
+        let filteredItems = [...mediaItems];
+        let currentIndex = 0;
+        let isAutoplay = false;
+        let autoplayTimer = null;
+        let progressInterval = null;
+        const AUTOPLAY_DURATION = 5000; // 5 segundos por item
+        let progressPercent = 0;
+
+        // ELEMENTOS DO DOM
+        const track = document.getElementById('carouselTrack');
+        const thumbsTrack = document.getElementById('thumbnailsTrack');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const itemCounter = document.getElementById('itemCounter');
+        const currentTypeBadge = document.getElementById('currentTypeBadge');
+        const currentTitle = document.getElementById('currentTitle');
+        const currentFilename = document.getElementById('currentFilename');
+        const autoplayBtn = document.getElementById('autoplayBtn');
+        const autoplayIcon = document.getElementById('autoplayIcon');
+        const autoplayText = document.getElementById('autoplayText');
+        const progressBar = document.getElementById('progressBar');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const carouselWrapper = document.getElementById('carouselWrapper');
+
+        const filterBtns = document.querySelectorAll('.filter-btn');
+
+        // INICIALIZAÇÃO
+        function initCarousel() {
+            renderSlides();
+            renderThumbnails();
+            showSlide(0);
+            setupEventListeners();
+        }
+
+        // RENDERIZAÇÃO DOS SLIDES
+        function renderSlides() {
+            track.innerHTML = '';
+            filteredItems.forEach((item, index) => {
+                const slide = document.createElement('div');
+                slide.className = 'carousel-slide';
+                slide.dataset.index = index;
+
+                if (item.type === 'image') {
+                    const img = document.createElement('img');
+                    img.src = item.src;
+                    img.alt = item.title;
+                    img.loading = index === 0 ? 'eager' : 'lazy';
+                    slide.appendChild(img);
+                } else if (item.type === 'video') {
+                    const video = document.createElement('video');
+                    video.src = item.src;
+                    video.controls = true;
+                    video.playsInline = true;
+                    video.preload = 'metadata';
+                    
+                    // Pausa autoplay quando o vídeo é tocado
+                    video.addEventListener('play', () => {
+                        if (isAutoplay) stopAutoplay();
+                    });
+
+                    // Quando o vídeo acabar, avança se autoplay estiver ligado
+                    video.addEventListener('ended', () => {
+                        if (isAutoplay) nextSlide();
+                    });
+
+                    slide.appendChild(video);
+                }
+
+                track.appendChild(slide);
+            });
+        }
+
+        // RENDERIZAÇÃO DAS MINIATURAS
+        function renderThumbnails() {
+            thumbsTrack.innerHTML = '';
+            filteredItems.forEach((item, index) => {
+                const thumb = document.createElement('div');
+                thumb.className = `thumb-item ${index === currentIndex ? 'active' : ''}`;
+                thumb.dataset.index = index;
+
+                if (item.type === 'image') {
+                    const img = document.createElement('img');
+                    img.src = item.src;
+                    img.alt = item.title;
+                    img.loading = 'lazy';
+                    thumb.appendChild(img);
+                } else if (item.type === 'video') {
+                    const video = document.createElement('video');
+                    video.src = item.src;
+                    video.muted = true;
+                    video.preload = 'metadata';
+                    thumb.appendChild(video);
+
+                    const badge = document.createElement('div');
+                    badge.className = 'thumb-video-badge';
+                    badge.innerHTML = '▶';
+                    thumb.appendChild(badge);
+                }
+
+                thumb.addEventListener('click', () => {
+                    goToSlide(index);
+                });
+
+                thumbsTrack.appendChild(thumb);
+            });
+        }
+
+        // EXIBIR SLIDE ESPECÍFICO
+        function showSlide(index) {
+            if (filteredItems.length === 0) return;
+
+            // Pausar qualquer vídeo que esteja tocando nos slides antigos
+            const allVideos = track.querySelectorAll('video');
+            allVideos.forEach(v => v.pause());
+
+            // Normaliza o índice
+            if (index < 0) {
+                currentIndex = filteredItems.length - 1;
+            } else if (index >= filteredItems.length) {
+                currentIndex = 0;
+            } else {
+                currentIndex = index;
+            }
+
+            // Atualiza classes ativas nos slides
+            const slides = track.querySelectorAll('.carousel-slide');
+            slides.forEach((slide, i) => {
+                if (i === currentIndex) {
+                    slide.classList.add('active');
+                } else {
+                    slide.classList.remove('active');
+                }
+            });
+
+            // Atualiza miniaturas
+            const thumbs = thumbsTrack.querySelectorAll('.thumb-item');
+            thumbs.forEach((thumb, i) => {
+                if (i === currentIndex) {
+                    thumb.classList.add('active');
+                    thumb.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                } else {
+                    thumb.classList.remove('active');
+                }
+            });
+
+            // Atualiza informações e legendas
+            const currentItem = filteredItems[currentIndex];
+            itemCounter.textContent = `${currentIndex + 1} de ${filteredItems.length}`;
+            currentTitle.textContent = currentItem.title;
+            currentFilename.textContent = currentItem.filename;
+
+            if (currentItem.type === 'image') {
+                currentTypeBadge.textContent = 'Foto';
+                currentTypeBadge.className = 'caption-type type-foto';
+            } else {
+                currentTypeBadge.textContent = 'Vídeo';
+                currentTypeBadge.className = 'caption-type type-video';
+            }
+
+            // Reinicia progresso se estiver em autoplay
+            if (isAutoplay) {
+                resetProgress();
+            }
+        }
+
+        function nextSlide() {
+            showSlide(currentIndex + 1);
+        }
+
+        function prevSlide() {
+            showSlide(currentIndex - 1);
+        }
+
+        function goToSlide(index) {
+            showSlide(index);
+        }
+
+        // AUTOPLAY E BARRA DE PROGRESSO
+        function startAutoplay() {
+            isAutoplay = true;
+            autoplayBtn.classList.add('active-autoplay');
+            autoplayIcon.textContent = '⏸';
+            autoplayText.textContent = 'Pausar';
+            resetProgress();
+        }
+
+        function stopAutoplay() {
+            isAutoplay = false;
+            autoplayBtn.classList.remove('active-autoplay');
+            autoplayIcon.textContent = '▶';
+            autoplayText.textContent = 'Auto-play';
+            clearInterval(autoplayTimer);
+            clearInterval(progressInterval);
+            progressBar.style.width = '0%';
+        }
+
+        function toggleAutoplay() {
+            if (isAutoplay) {
+                stopAutoplay();
+            } else {
+                startAutoplay();
+            }
+        }
+
+        function resetProgress() {
+            clearInterval(autoplayTimer);
+            clearInterval(progressInterval);
+            progressPercent = 0;
+            progressBar.style.width = '0%';
+
+            const intervalStep = 50; // atualiza a cada 50ms
+            const stepPercent = (intervalStep / AUTOPLAY_DURATION) * 100;
+
+            progressInterval = setInterval(() => {
+                progressPercent += stepPercent;
+                if (progressPercent >= 100) {
+                    progressPercent = 100;
+                    progressBar.style.width = '100%';
+                    clearInterval(progressInterval);
+                    nextSlide();
+                } else {
+                    progressBar.style.width = `${progressPercent}%`;
+                }
+            }, intervalStep);
+        }
+
+        // FILTROS
+        function applyFilter(filterType) {
+            currentFilter = filterType;
+
+            filterBtns.forEach(btn => {
+                if (btn.dataset.filter === filterType) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            if (filterType === 'all') {
+                filteredItems = [...mediaItems];
+            } else {
+                filteredItems = mediaItems.filter(item => item.type === filterType);
+            }
+
+            renderSlides();
+            renderThumbnails();
+            currentIndex = 0;
+            showSlide(0);
+        }
+
+        // TELA CHEIA
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                if (carouselWrapper.requestFullscreen) {
+                    carouselWrapper.requestFullscreen();
+                } else if (carouselWrapper.webkitRequestFullscreen) {
+                    carouselWrapper.webkitRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        // EVENT LISTENERS
+        function setupEventListeners() {
+            prevBtn.addEventListener('click', prevSlide);
+            nextBtn.addEventListener('click', nextSlide);
+            autoplayBtn.addEventListener('click', toggleAutoplay);
+            fullscreenBtn.addEventListener('click', toggleFullscreen);
+
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    applyFilter(btn.dataset.filter);
+                });
+            });
+
+            // Navegação por teclado
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowLeft') {
+                    prevSlide();
+                } else if (e.key === 'ArrowRight') {
+                    nextSlide();
+                } else if (e.key === ' ' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') {
+                    e.preventDefault();
+                    toggleAutoplay();
+                } else if (e.key === 'f' || e.key === 'F') {
+                    toggleFullscreen();
+                }
+            });
+
+            // Suporte para Touch / Swipe em dispositivos móveis
+            let touchStartX = 0;
+            let touchEndX = 0;
+
+            carouselWrapper.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+            }, { passive: true });
+
+            carouselWrapper.addEventListener('touchend', (e) => {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+            }, { passive: true });
+
+            function handleSwipe() {
+                const swipeDistance = touchEndX - touchStartX;
+                if (Math.abs(swipeDistance) > 40) {
+                    if (swipeDistance < 0) {
+                        nextSlide(); // Deslizou para a esquerda -> Próximo
+                    } else {
+                        prevSlide(); // Deslizou para a direita -> Anterior
+                    }
+                }
+            }
+        }
+
+        // Iniciar após carregar o DOM
+        document.addEventListener('DOMContentLoaded', initCarousel);
+    </script>
+</body>
+</html>
+
