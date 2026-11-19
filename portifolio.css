@@ -60,6 +60,7 @@
 
         ul {
             list-style-position: inside;
+            width: 300px;
         }
 
         li {
@@ -208,6 +209,23 @@
             inset: 0;
             background: radial-gradient(circle, transparent 30%, rgba(0,0,0,0.85) 90%);
             pointer-events: none;
+        }
+
+        .sobre ul li{
+            width: 300px;
+        }
+        .img_pessoal{
+            height: 180px;
+        }
+        .img_pessoal:last-of-type{
+            margin-left: 300px;
+        }
+
+        .caixa_img{
+            /* border: solid 1px #000; */
+            /* padding: 20px; */
+            /* width: 300px; */
+           float: right;
         }
 
         /* Delays ajustados para 7 imagens (5s cada) */
